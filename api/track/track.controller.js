@@ -25,25 +25,24 @@ exports.createOne = async ctx => {
   const body = ctx.request.body;
   ctx.assert(body.album_id, 400, 'The info is malformed!');
 
-  const track = await new Track({
+  const track = await new Track()
+  .save({
     title: body.title,
     album_id: body.album_id,
+    composer: body.composer
+  },{ debug : true})
+  .then(
+    (a) => {
+      console.log(track);
+    }
+  )
+  .catch(err => { 
+    ctx.status = 400;
+    ctx.body = {
+      status: 'error',
+      message: err.message || 'Sorry, an error has occurred.'
+    };
   })
-    .save({
-      composer: body.composer
-    }, { debug : true})
-    .then(
-      (a) => {
-        console.log(track);
-      }
-    )
-    .catch(err => { 
-      ctx.status = 400;
-      ctx.body = {
-        status: 'error',
-        message: err.message || 'Sorry, an error has occurred.'
-      };
-    })
 
   ctx.body = await new Track({ title: body.title })
     .fetch({ withRelated: ['album'] })
